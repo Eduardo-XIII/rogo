@@ -37,7 +37,7 @@
             var VP = VF / Math.pow((1 + i), n);
             var inflacion = VF - VP;
             var total = VP + inflacion;
-            document.getElementById('resultado').innerText = `El Valor Presente es: ${VP.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (Inflación: ${inflacion.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}) Total: ${total.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('resultado').innerText = `Valor Presente : ${VP.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (Inflación: ${inflacion.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}) Valor Futuro: ${total.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             return false; // Para prevenir que el formulario se envíe
         }
     </script>
