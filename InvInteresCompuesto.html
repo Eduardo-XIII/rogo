@@ -12,42 +12,24 @@
         }
         .input-group {
             display: flex;
-            align-items: center;
+            align-items: center; 
             margin-bottom: 10px;
         }
         .input-group label {
-            flex-basis: 200px; 
-            margin-right: 10px;
-            white-space: nowrap;
-            text-align: right;
+            margin-right: 5px; 
+            white-space: nowrap; 
         }
         .input-group input[type="text"],
-        .input-group select {
-            flex-grow: 1;
-            padding: 5px;
-            font-size: 16px;
-        }
         .input-group input[type="checkbox"] {
-            margin-left: 10px;
+            margin: 0; 
         }
         .result {
             margin-top: 20px;
             font-weight: bold;
+            white-space: nowrap; 
         }
         .total-item {
-            display: flex;
-            justify-content: space-between;
             margin-top: 10px;
-            font-size: 16px;
-        }
-        .total-item label {
-            flex-basis: 200px;
-            text-align: right;
-            padding-right: 10px;
-        }
-        .total-item span {
-            flex-grow: 1;
-            text-align: left;
         }
     </style>
 </head>
@@ -110,10 +92,6 @@
             }
         }
 
-        function limpiarValor(valor) {
-            return parseFloat(valor.replace(/,/g, '')) || 0;
-        }
-
         function actualizarLeyendas() {
             const frecuencia = document.getElementById('frecuencia').value;
             const leyendaAportacion = document.getElementById('leyendaAportacion');
@@ -126,6 +104,10 @@
                 leyendaAportacion.textContent = 'Anual';
                 leyendaPeriodo.textContent = 'años';
             }
+        }
+
+        function limpiarValor(valor) {
+            return parseFloat(valor.replace(/,/g, '')) || 0;
         }
 
         function calcularInversion() {
@@ -156,16 +138,16 @@
             }
 
             let resultadoTexto = `
-                <div class="total-item"><label>Total Aportaciones:</label> <span>$${numberWithCommas(totalAportaciones.toFixed(2))}</span></div>
-                <div class="total-item"><label>Interés Compuesto:</label> <span>$${numberWithCommas(totalIntereses.toFixed(2))}</span></div>`;
+                <div class="total-item">Total Aportaciones: $${numberWithCommas(totalAportaciones.toFixed(2))}</div>
+                <div class="total-item">Interés Compuesto : $${numberWithCommas(totalIntereses.toFixed(2))}</div>`;
 
             if (aplicarISR) {
                 const ISR = totalIntereses * porcentajeISR;
                 saldo -= ISR;
-                resultadoTexto += `<div class="total-item"><label>Total ISR:</label> <span>$${numberWithCommas(ISR.toFixed(2))}</span></div>`;
+                resultadoTexto += `<div class="total-item">Total ISR: $${numberWithCommas(ISR.toFixed(2))}</div>`;
             }
 
-            resultadoTexto += `<div class="total-item"><label>Saldo Final:</label> <span>$${numberWithCommas(saldo.toFixed(2))}</span></div>`;
+            resultadoTexto += `<div class="total-item">Saldo Final: $${numberWithCommas(saldo.toFixed(2))}</div>`;
 
             document.getElementById('resultado').innerHTML = resultadoTexto;
         }
@@ -231,10 +213,7 @@
             document.getElementById('porcentajeISR').value = '0';
             document.getElementById('grupoISR').style.display = 'none';
             document.getElementById('resultado').innerHTML = '';
-            actualizarLeyendas();
         }
-
-        actualizarLeyendas();
     </script>
 </body>
 </html>
