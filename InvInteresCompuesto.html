@@ -5,31 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inversión con Interés Compuesto</title>
     <link rel="stylesheet" href="calculadora-inversion.css">
-        <style>
+    <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
         .input-group {
             display: flex;
-            align-items: center; 
+            align-items: center;
             margin-bottom: 10px;
         }
         .input-group label {
-            margin-right: 5px; 
-            white-space: nowrap; 
+            flex-basis: 200px; 
+            margin-right: 10px;
+            white-space: nowrap;
+            text-align: right;
         }
-        .input-group input[type="number"],
+        .input-group input[type="text"],
+        .input-group select {
+            flex-grow: 1;
+            padding: 5px;
+            font-size: 16px;
+        }
         .input-group input[type="checkbox"] {
-            margin: 0; 
+            margin-left: 10px;
         }
         .result {
             margin-top: 20px;
             font-weight: bold;
-            white-space: nowrap; 
         }
         .total-item {
+            display: flex;
+            justify-content: space-between;
             margin-top: 10px;
+            font-size: 16px;
+        }
+        .total-item label {
+            flex-basis: 200px;
+            text-align: right;
+            padding-right: 10px;
+        }
+        .total-item span {
+            flex-grow: 1;
+            text-align: left;
         }
     </style>
 </head>
@@ -44,19 +62,19 @@
     </div>
     <div class="input-group">
         <label for="aportacionInicial">Aportación Inicial:</label>
-        <input type="number" id="aportacionInicial" value="0">
+        <input type="text" id="aportacionInicial" value="0" oninput="formatInputWithCommas(this)">
     </div>
     <div class="input-group">
         <label for="aportacionMensual">Aportación <span id="leyendaAportacion">Mensual</span>:</label>
-        <input type="number" id="aportacionMensual" value="0">
+        <input type="text" id="aportacionMensual" value="0" oninput="formatInputWithCommas(this)">
     </div>
     <div class="input-group">
         <label for="interesAnual">Interés Anual (%):</label>
-        <input type="number" id="interesAnual" value="0">
+        <input type="text" id="interesAnual" value="0" oninput="formatInputWithCommas(this)">
     </div>
     <div class="input-group">
         <label for="periodoMeses">Periodo (<span id="leyendaPeriodo">meses</span>):</label>
-        <input type="number" id="periodoMeses" value="0">
+        <input type="text" id="periodoMeses" value="0" oninput="formatInputWithCommas(this)">
     </div>
     <div class="input-group">
         <label for="aplicarISR">Aplicar ISR:</label>
@@ -64,7 +82,7 @@
     </div>
     <div class="input-group" id="grupoISR" style="display: none;">
         <label for="porcentajeISR">Porcentaje ISR (%):</label>
-        <input type="number" id="porcentajeISR" value="0">
+        <input type="text" id="porcentajeISR" value="0" oninput="formatInputWithCommas(this)">
     </div>
     <button onclick="calcularInversion()">Calcular</button>
     <button onclick="generarCSV()">Generar CSV</button>
@@ -83,6 +101,19 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
+        function formatInputWithCommas(inputElement) {
+            let value = inputElement.value.replace(/,/g, '');
+            if (!isNaN(value) && value.trim() !== '') {
+                inputElement.value = numberWithCommas(value);
+            } else {
+                inputElement.value = '';
+            }
+        }
+
+        function limpiarValor(valor) {
+            return parseFloat(valor.replace(/,/g, '')) || 0;
+        }
+
         function actualizarLeyendas() {
             const frecuencia = document.getElementById('frecuencia').value;
             const leyendaAportacion = document.getElementById('leyendaAportacion');
@@ -98,13 +129,12 @@
         }
 
         function calcularInversion() {
-            // Obtener valores de los inputs
-            const aportacionInicial = parseFloat(document.getElementById('aportacionInicial').value);
-            const aportacionMensual = parseFloat(document.getElementById('aportacionMensual').value);
-            const interesAnual = parseFloat(document.getElementById('interesAnual').value) / 100;
-            const periodoMeses = parseInt(document.getElementById('periodoMeses').value);
+            const aportacionInicial = limpiarValor(document.getElementById('aportacionInicial').value);
+            const aportacionMensual = limpiarValor(document.getElementById('aportacionMensual').value);
+            const interesAnual = limpiarValor(document.getElementById('interesAnual').value) / 100;
+            const periodoMeses = parseInt(document.getElementById('periodoMeses').value.replace(/,/g, ''));
             const aplicarISR = document.getElementById('aplicarISR').checked;
-            const porcentajeISR = aplicarISR ? parseFloat(document.getElementById('porcentajeISR').value) / 100 : 0;
+            const porcentajeISR = aplicarISR ? limpiarValor(document.getElementById('porcentajeISR').value) / 100 : 0;
             const frecuencia = document.getElementById('frecuencia').value;
             const tasa = frecuencia === 'mensual' ? interesAnual / 12 : interesAnual;
 
@@ -126,28 +156,27 @@
             }
 
             let resultadoTexto = `
-                <div class="total-item">Total Aportaciones: $${numberWithCommas(totalAportaciones.toFixed(2))}</div>
-                <div class="total-item">Interés Compuesto : $${numberWithCommas(totalIntereses.toFixed(2))}</div>`;
+                <div class="total-item"><label>Total Aportaciones:</label> <span>$${numberWithCommas(totalAportaciones.toFixed(2))}</span></div>
+                <div class="total-item"><label>Interés Compuesto:</label> <span>$${numberWithCommas(totalIntereses.toFixed(2))}</span></div>`;
 
-            // Calcular y mostrar el ISR solo en el saldo final
             if (aplicarISR) {
                 const ISR = totalIntereses * porcentajeISR;
                 saldo -= ISR;
-                resultadoTexto += `<div class="total-item">Total ISR: $${numberWithCommas(ISR.toFixed(2))}</div>`;
+                resultadoTexto += `<div class="total-item"><label>Total ISR:</label> <span>$${numberWithCommas(ISR.toFixed(2))}</span></div>`;
             }
 
-            resultadoTexto += `<div class="total-item">Saldo Final: $${numberWithCommas(saldo.toFixed(2))}</div>`;
+            resultadoTexto += `<div class="total-item"><label>Saldo Final:</label> <span>$${numberWithCommas(saldo.toFixed(2))}</span></div>`;
 
             document.getElementById('resultado').innerHTML = resultadoTexto;
         }
 
         function generarCSV() {
-            const aportacionInicial = parseFloat(document.getElementById('aportacionInicial').value);
-            const aportacionMensual = parseFloat(document.getElementById('aportacionMensual').value);
-            const interesAnual = parseFloat(document.getElementById('interesAnual').value) / 100;
-            const periodoMeses = parseInt(document.getElementById('periodoMeses').value);
+            const aportacionInicial = limpiarValor(document.getElementById('aportacionInicial').value);
+            const aportacionMensual = limpiarValor(document.getElementById('aportacionMensual').value);
+            const interesAnual = limpiarValor(document.getElementById('interesAnual').value) / 100;
+            const periodoMeses = parseInt(document.getElementById('periodoMeses').value.replace(/,/g, ''));
             const aplicarISR = document.getElementById('aplicarISR').checked;
-            const porcentajeISR = aplicarISR ? parseFloat(document.getElementById('porcentajeISR').value) / 100 : 0;
+            const porcentajeISR = aplicarISR ? limpiarValor(document.getElementById('porcentajeISR').value) / 100 : 0;
             const frecuencia = document.getElementById('frecuencia').value;
             const tasa = frecuencia === 'mensual' ? interesAnual / 12 : interesAnual;
 
@@ -163,7 +192,6 @@
                 totalAportaciones += aportacionMensual * (periodoMeses);
             }
 
-            // Encabezados (sin acentos)
             csvContent += "Calculadora de Inversion con Interes Compuesto\n";
             csvContent += `Periodo,Saldo Inicial,Aportacion ${frecuencia === 'mensual' ? 'Mensual' : 'Anual'},Interes Compuesto,ISR,Saldo Final\n`;
 
@@ -175,13 +203,13 @@
                 totalIntereses += intereses;
 
                 let ISR = aplicarISR ? intereses * porcentajeISR : 0;
-                totalISR += ISR; // Acumular el ISR total para aplicarlo solo en el total final
-                let saldoFinal = saldo;
+                totalISR += ISR;
+                let saldoFinal = saldo - ISR;
 
                 csvContent += `${i + 1},${saldoInicial.toFixed(2)},${aportacionMensual.toFixed(2)},${intereses.toFixed(2)},${ISR.toFixed(2)},${saldoFinal.toFixed(2)}\n`;
             }
 
-            saldo -= totalISR; // Restar el ISR acumulado solo en el saldo final total
+            saldo -= totalISR;
 
             csvContent += `\nTotal,,${totalAportaciones.toFixed(2)},${totalIntereses.toFixed(2)},${totalISR.toFixed(2)},${saldo.toFixed(2)}\n`;
 
@@ -195,12 +223,13 @@
         }
 
         function resetearCampos() {
-            document.getElementById('aportacionInicial').value = 0;
-            document.getElementById('aportacionMensual').value = 0;
-            document.getElementById('interesAnual').value = 0;
-            document.getElementById('periodoMeses').value = 0;
+            document.getElementById('aportacionInicial').value = '0';
+            document.getElementById('aportacionMensual').value = '0';
+            document.getElementById('interesAnual').value = '0';
+            document.getElementById('periodoMeses').value = '0';
             document.getElementById('aplicarISR').checked = false;
-            document.getElementById('porcentajeISR').value = 0;
+            document.getElementById('porcentajeISR').value = '0';
+            document.getElementById('grupoISR').style.display = 'none';
             document.getElementById('resultado').innerHTML = '';
             actualizarLeyendas();
         }
