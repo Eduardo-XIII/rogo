@@ -37,7 +37,7 @@
     <h2>Inversión con Interés Compuesto</h2>
     <div class="input-group">
         <label for="frecuencia">Frecuencia:</label>
-        <select id="frecuencia" onchange="actualizarLeyendas()">
+        <select id="frecuencia" onchange="actualizarLeyendas(); calcularFechaFinal();">
             <option value="mensual">Mensual</option>
             <option value="anual">Anual</option>
         </select>
@@ -56,7 +56,15 @@
     </div>
     <div class="input-group">
         <label for="periodoMeses">Periodo (<span id="leyendaPeriodo">meses</span>):</label>
-        <input type="text" id="periodoMeses" value="0" oninput="formatInputWithCommas(this)">
+        <input type="text" id="periodoMeses" value="0" oninput="formatInputWithCommas(this); calcularFechaFinal();">
+    </div>
+    <div class="input-group">
+        <label for="fechaInicio">Fecha de Inicio:</label>
+        <input type="date" id="fechaInicio" onchange="calcularFechaFinal();">
+    </div>
+    <div class="input-group">
+        <label for="fechaFinal">Fecha de Finalización:</label>
+        <input type="text" id="fechaFinal" readonly>
     </div>
     <div class="input-group">
         <label for="aplicarISR">Aplicar ISR:</label>
@@ -108,6 +116,30 @@
 
         function limpiarValor(valor) {
             return parseFloat(valor.replace(/,/g, '')) || 0;
+        }
+
+        function calcularFechaFinal() {
+            const fechaInicio = new Date(document.getElementById('fechaInicio').value);
+            const periodoMeses = parseInt(document.getElementById('periodoMeses').value.replace(/,/g, ''));
+            const frecuencia = document.getElementById('frecuencia').value;
+
+            if (!isNaN(fechaInicio) && periodoMeses > 0) {
+                let fechaFinal = new Date(fechaInicio);
+
+                if (frecuencia === 'mensual') {
+                    fechaFinal.setMonth(fechaFinal.getMonth() + periodoMeses);
+                } else if (frecuencia === 'anual') {
+                    fechaFinal.setFullYear(fechaFinal.getFullYear() + periodoMeses);
+                }
+
+                const dia = String(fechaFinal.getDate()).padStart(2, '0');
+                const mes = String(fechaFinal.getMonth() + 1).padStart(2, '0');
+                const ano = fechaFinal.getFullYear();
+
+                document.getElementById('fechaFinal').value = `${dia}/${mes}/${ano}`;
+            } else {
+                document.getElementById('fechaFinal').value = '';
+            }
         }
 
         function calcularInversion() {
@@ -212,6 +244,8 @@
             document.getElementById('aplicarISR').checked = false;
             document.getElementById('porcentajeISR').value = '0';
             document.getElementById('grupoISR').style.display = 'none';
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFinal').value = '';
             document.getElementById('resultado').innerHTML = '';
         }
     </script>
